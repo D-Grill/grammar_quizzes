@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emphasis – Cleft Sentences and Inversion</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Calibri, 'Segoe UI', sans-serif; background: #f4f4f4; min-height: 100vh; display: flex; justify-content: center; padding: 32px 16px; }
+  #root { width: 100%; max-width: 700px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const { useState } = React;
+
+// ── Exercise 1 — one word per gap ──────────────────────────────────────────
+// Each item: parts[] split around the gap, accepted[] list of valid answers
+const ex1 = [
+  { parts: ['', ' was the street food that Victoria and Lisa enjoyed most on their trip to Bangkok.'], accepted: ['it'], display: 'It' },
+  { parts: ['', ' surprised Jannis most about Tokyo was how quiet the subway was.'], accepted: ['what'], display: 'What' },
+  { parts: ['What Mariella means ', ' that the service in the restaurant was exceptional.'], accepted: ['is'], display: 'is' },
+  { parts: ['Aaron had never been to New York before – never had ', ' imagined the city would be so loud!'], accepted: ['he'], display: 'he' },
+  { parts: ['When Greta arrived in Marrakech, ', ' only was she overwhelmed by the colours, but she was also overwhelmed by the smells.'], accepted: ['not'], display: 'not' },
+  { parts: ['What makes the Dead Sea so unusual is ', ' the water is so salty that you float without trying.'], accepted: ['that'], display: 'that' },
+  { parts: ['Lisa found the crossing extremely dangerous. Under ', ' circumstances would she travel that road again.'], accepted: ['no'], display: 'no' },
+  { parts: ['', ' Jannis and Mariella are saying is that they would rather travel by train than by plane.'], accepted: ['what', 'all'], display: 'What / All' },
+];
+
+// ── Exercise 2 — complete the emphasis structure ───────────────────────────
+// stem shown to student; accepted[] are valid completions (normalised)
+const ex2 = [
+  {
+    prompt: 'Victoria wants to climb Machu Picchu.',
+    stem: "It's",
+    accepted: ["machu picchu (that) victoria wants to climb", "machu picchu that victoria wants to climb", "machu picchu victoria wants to climb"],
+    display: "It's Machu Picchu (that) Victoria wants to climb."
+  },
+  {
+    prompt: 'Aaron has never tasted such spicy food!',
+    stem: 'Never',
+    accepted: ['never (before) has aaron tasted such spicy food', 'never has aaron tasted such spicy food', 'never before has aaron tasted such spicy food'],
+    display: 'Never (before) has Aaron tasted such spicy food!'
+  },
+  {
+    prompt: 'Greta had the most breathtaking views from her hotel in the Swiss Alps.',
+    stem: 'It was',
+    accepted: ['it was from her hotel in the swiss alps that greta had the most breathtaking views', 'from her hotel in the swiss alps that greta had the most breathtaking views'],
+    display: 'It was from her hotel in the Swiss Alps that Greta had the most breathtaking views.'
+  },
+  {
+    prompt: 'Jannis would never fly with that airline again.',
+    stem: 'Under',
+    accepted: ['under no circumstances would jannis (ever) fly with that airline again', 'under no circumstances would jannis fly with that airline again', 'no circumstances would jannis fly with that airline again', 'no circumstances would jannis ever fly with that airline again'],
+    display: 'Under no circumstances would Jannis (ever) fly with that airline again.'
+  },
+  {
+    prompt: 'Lisa visited ancient ruins and swam in crystal-clear water in Greece.',
+    stem: 'Not only',
+    accepted: ['not only did lisa visit ancient ruins, but she also swam in crystal-clear water in greece', 'not only did lisa visit ancient ruins but she also swam in crystal-clear water in greece', 'did lisa visit ancient ruins, but she also swam in crystal-clear water in greece', 'did lisa visit ancient ruins but she also swam in crystal-clear water in greece'],
+    display: 'Not only did Lisa visit ancient ruins, but she also swam in crystal-clear water in Greece.'
+  },
+  {
+    prompt: 'When you cross a time zone, your sleep pattern is disrupted.',
+    stem: 'What happens',
+    accepted: ['what happens when you cross a time zone is that your sleep pattern is disrupted', 'when you cross a time zone is that your sleep pattern is disrupted'],
+    display: 'What happens when you cross a time zone is that your sleep pattern is disrupted.'
+  },
+  {
+    prompt: 'The heat in the desert was unbearable for Mariella and Aaron!',
+    stem: 'What was',
+    accepted: ['what was unbearable for mariella and aaron was the heat in the desert', 'unbearable for mariella and aaron was the heat in the desert'],
+    display: 'What was unbearable for Mariella and Aaron was the heat in the desert.'
+  },
+  {
+    prompt: "Greta couldn't get used to the noise in the hotel lobby.",
+    stem: "It was",
+    accepted: ["it was the noise in the hotel lobby that greta couldn't get used to", "the noise in the hotel lobby that greta couldn't get used to", "it was the noise that greta couldn't get used to in the hotel lobby"],
+    display: "It was the noise in the hotel lobby that Greta couldn't get used to."
+  },
+];
+
+function normalize(s) {
+  return s.trim().toLowerCase().replace(/['']/g, "'").replace(/\s+/g, ' ').replace(/[!?.]/g, '');
+}
+
+function Card({ children }) {
+  return React.createElement('div', {
+    style: { background: '#fff', borderRadius: 2, boxShadow: '0 1px 4px rgba(0,0,0,0.1)', padding: 28, marginBottom: 20 }
+  }, children);
+}
+
+function SectionHeader({ num, instruction }) {
+  return React.createElement('div', {
+    style: { borderBottom: '2px solid #000', paddingBottom: 8, marginBottom: 20 }
+  },
+    React.createElement('span', { style: { fontWeight: 'bold', marginRight: 8 } }, num),
+    React.createElement('span', { style: { fontSize: 14 } }, instruction)
+  );
+}
+
+function Ex1Item({ item, index, state, onSubmit }) {
+  const [input, setInput] = useState('');
+  const submitted = !!state;
+  const correct = state && state.result === 'correct';
+
+  function handleCheck() {
+    if (!input.trim()) return;
+    const ok = item.accepted.includes(normalize(input));
+    onSubmit({ result: ok ? 'correct' : 'wrong', userInput: input });
+  }
+
+  const displayInput = submitted ? state.userInput : input;
+
+  return React.createElement('div', { style: { marginBottom: 16 } },
+    React.createElement('div', { style: { display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap', fontSize: 14, lineHeight: 1.7 } },
+      React.createElement('span', { style: { fontWeight: 'bold', color: '#888', minWidth: 20 } }, (index + 1) + '.'),
+      item.parts[0] && React.createElement('span', null, item.parts[0]),
+      // input or answer
+      submitted
+        ? React.createElement('span', {
+            style: { fontWeight: 'bold', color: correct ? '#2a7a2a' : '#b00', borderBottom: '2px solid', borderColor: correct ? '#2a7a2a' : '#b00', minWidth: 60, display: 'inline-block', textAlign: 'center' }
+          }, state.userInput)
+        : React.createElement('input', {
+            value: input,
+            onChange: e => setInput(e.target.value),
+            onKeyDown: e => e.key === 'Enter' && handleCheck(),
+            style: { width: 90, padding: '2px 6px', fontSize: 14, border: '1px solid #999', borderRadius: 2, fontFamily: 'Calibri, sans-serif', textAlign: 'center' }
+          }),
+      item.parts[1] && React.createElement('span', null, item.parts[1])
+    ),
+    submitted && !correct && React.createElement('div', {
+      style: { fontSize: 12, color: '#2a7a2a', marginTop: 4, marginLeft: 28 }
+    }, 'Answer: ' + item.display),
+    !submitted && React.createElement('button', {
+      onClick: handleCheck,
+      style: { marginLeft: 28, marginTop: 4, fontSize: 11, padding: '2px 10px', background: '#000', color: '#fff', border: 'none', cursor: 'pointer', borderRadius: 2 }
+    }, 'Check')
+  );
+}
+
+function Ex2Item({ item, index, state, onSubmit }) {
+  const [input, setInput] = useState('');
+  const submitted = !!state;
+  const correct = state && state.result === 'correct';
+
+  function handleCheck() {
+    if (!input.trim()) return;
+    const full = normalize(item.stem + ' ' + input);
+    const inputOnly = normalize(input);
+    const ok = item.accepted.some(a => normalize(a) === full || normalize(a) === inputOnly);
+    onSubmit({ result: ok ? 'correct' : 'wrong', userInput: input });
+  }
+
+  return React.createElement('div', { style: { marginBottom: 20 } },
+    // Prompt
+    React.createElement('div', {
+      style: { fontSize: 14, color: '#444', marginBottom: 6, marginLeft: 28 }
+    }, React.createElement('span', { style: { fontWeight: 'bold', color: '#888', marginRight: 8 } }, (index + 1) + '.'), item.prompt),
+    // Stem + input
+    React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8, marginLeft: 28, flexWrap: 'wrap' } },
+      React.createElement('span', { style: { fontSize: 14, fontWeight: 'bold', whiteSpace: 'nowrap' } }, item.stem),
+      submitted
+        ? React.createElement('span', {
+            style: { fontSize: 14, color: correct ? '#2a7a2a' : '#b00', fontStyle: 'italic' }
+          }, state.userInput)
+        : React.createElement('input', {
+            value: input,
+            onChange: e => setInput(e.target.value),
+            onKeyDown: e => e.key === 'Enter' && handleCheck(),
+            placeholder: '…',
+            style: { flex: 1, minWidth: 200, padding: '4px 8px', fontSize: 14, border: '1px solid #999', borderRadius: 2, fontFamily: 'Calibri, sans-serif' }
+          }),
+      !submitted && React.createElement('button', {
+        onClick: handleCheck,
+        style: { fontSize: 11, padding: '4px 12px', background: '#000', color: '#fff', border: 'none', cursor: 'pointer', borderRadius: 2, whiteSpace: 'nowrap' }
+      }, 'Check')
+    ),
+    submitted && !correct && React.createElement('div', {
+      style: { fontSize: 12, color: '#2a7a2a', marginTop: 6, marginLeft: 28 }
+    }, 'Answer: ' + item.display)
+  );
+}
+
+function App() {
+  const [ex1State, setEx1State] = useState({});
+  const [ex2State, setEx2State] = useState({});
+  const [showScore, setShowScore] = useState(false);
+
+  const ex1Done = Object.keys(ex1State).length === ex1.length;
+  const ex2Done = Object.keys(ex2State).length === ex2.length;
+  const allDone = ex1Done && ex2Done;
+
+  const ex1Score = Object.values(ex1State).filter(s => s && s.result === 'correct').length;
+  const ex2Score = Object.values(ex2State).filter(s => s && s.result === 'correct').length;
+  const total = ex1Score + ex2Score;
+
+  return React.createElement('div', null,
+    // Header
+    React.createElement(Card, null,
+      React.createElement('div', { style: { fontSize: 11, color: '#888', marginBottom: 4 } }, 'Grammar Practice'),
+      React.createElement('div', {
+        style: { fontSize: 22, fontWeight: 'bold', borderBottom: '3px solid #000', paddingBottom: 10, marginBottom: 0 }
+      }, 'Emphasis – Cleft Sentences and Inversion')
+    ),
+
+    // Exercise 1
+    React.createElement(Card, null,
+      React.createElement(SectionHeader, { num: '1', instruction: 'Complete the sentences with one word in each gap.' }),
+      ex1.map((item, i) =>
+        React.createElement(Ex1Item, {
+          key: i, item, index: i,
+          state: ex1State[i],
+          onSubmit: val => setEx1State(s => ({ ...s, [i]: val }))
+        })
+      ),
+      ex1Done && React.createElement('div', {
+        style: { textAlign: 'right', fontSize: 12, color: '#888', marginTop: 12 }
+      }, ex1Score + ' / ' + ex1.length)
+    ),
+
+    // Exercise 2
+    React.createElement(Card, null,
+      React.createElement(SectionHeader, { num: '2', instruction: 'Complete the sentences using structures for emphasis.' }),
+      ex2.map((item, i) =>
+        React.createElement(Ex2Item, {
+          key: i, item, index: i,
+          state: ex2State[i],
+          onSubmit: val => setEx2State(s => ({ ...s, [i]: val }))
+        })
+      ),
+      ex2Done && React.createElement('div', {
+        style: { textAlign: 'right', fontSize: 12, color: '#888', marginTop: 12 }
+      }, ex2Score + ' / ' + ex2.length)
+    ),
+
+    // Score panel
+    allDone && React.createElement(Card, null,
+      React.createElement('div', { style: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 } },
+        'Total: ' + total + ' / 16'
+      ),
+      React.createElement('div', { style: { background: '#eee', height: 8, borderRadius: 4, marginBottom: 12 } },
+        React.createElement('div', { style: { background: '#000', height: 8, borderRadius: 4, width: Math.round((total / 16) * 100) + '%' } })
+      ),
+      React.createElement('div', { style: { fontSize: 13, color: '#555' } },
+        total === 16 ? 'Perfect score.' : total >= 13 ? 'Strong result.' : total >= 10 ? 'Good effort — review the answers above.' : 'Review the highlighted answers above and try again.'
+      )
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>

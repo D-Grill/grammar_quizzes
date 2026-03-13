@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Partner B2 — Grammar Quiz</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Calibri, 'Segoe UI', sans-serif; background: #f4f4f4; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px; }
+  #root { width: 100%; max-width: 700px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const { useState } = React;
+
+const sections = [
+  {
+    title: "Section A — Phrases with be",
+    instructions: "Fill in the blank with the correct phrase: be about to, be due to, be supposed to, be sure/certain to, be (un)likely to, or be to.",
+    type: "fitb",
+    items: [
+      { q: "The quarterly results ________ be announced at tomorrow's board meeting — it has been in the calendar for weeks.", a: "are due to" },
+      { q: "Staff ________ submit their timesheets by Friday, but several people missed the deadline again.", a: "are supposed to" },
+      { q: "The CEO ________ announce the merger when the press call was interrupted by a fire alarm.", a: "was about to" },
+      { q: "According to the new code of conduct, personal calls ________ made during client meetings.", a: "are not to be" },
+      { q: "Profits ________ fall next quarter given the current market conditions — analysts all agree.", a: "are likely to" },
+    ]
+  },
+  {
+    title: "Section B — Future Continuous and Future Perfect Simple",
+    instructions: "Choose the correct option to complete each sentence.",
+    type: "mc",
+    items: [
+      { q: "By the time the new director arrives next month, we ________ the onboarding materials.", opts: ["will be preparing", "will have prepared", "are preparing"], a: "will have prepared" },
+      { q: "This time next week, the HR team ________ interviews for the regional manager role.", opts: ["will have conducted", "will conduct", "will be conducting"], a: "will be conducting" },
+      { q: "________ the finance team ________ all the reports before the audit begins?", opts: ["Will … be submitting", "Will … have submitted", "Are … submitting"], a: "Will … have submitted" },
+      { q: "We are certain that by 2030, most companies ________ a policy of paid sabbaticals.", opts: ["will be implementing", "will implement", "will have implemented"], a: "will have implemented" },
+    ]
+  },
+  {
+    title: "Section C — Modals in the passive voice",
+    instructions: "Each sentence contains one error. Type the corrected verb phrase only (e.g. must be explained).",
+    type: "ec",
+    items: [
+      { q: "This expense must to be explained before the invoice can be processed.", a: "must be explained" },
+      { q: "The reports don't have be finished until next week, but earlier is welcome.", a: "don't have to be finished" },
+      { q: "Your clients' personal data mustn't to be shared with any colleagues.", a: "mustn't be shared" },
+    ]
+  },
+  {
+    title: "Section D — Expressing certainty and probability",
+    instructions: "Fill in the blank using: likely to, unlikely to, certain to, due to, probably, or probably won't.",
+    type: "fitb",
+    items: [
+      { q: "The new sales strategy is ________ increase profitability this year — the forecast is very positive.", a: "likely to" },
+      { q: "He is ________ meet his targets by month-end; he is already twenty percent behind.", a: "unlikely to" },
+      { q: "Our online sales ________ rise significantly this quarter given current stock levels.", a: "probably won't" },
+    ]
+  },
+  {
+    title: "Section E — Zero, first and second conditionals; linkers",
+    instructions: "Choose the correct option to complete each sentence.",
+    type: "mc",
+    items: [
+      { q: "If you ________ this link, the full product catalogue appears automatically.", opts: ["click", "will click", "clicked"], a: "click" },
+      { q: "We ________ this product provided you gave us a two-year service guarantee.", opts: ["buy", "will buy", "would buy"], a: "would buy" },
+      { q: "We could start the project next month ________ you signed the agreement first.", opts: ["providing", "as long as", "unless"], a: "as long as" },
+    ]
+  },
+  {
+    title: "Section F — Passive voice",
+    instructions: "Choose the correct option to complete each sentence.",
+    type: "mc",
+    items: [
+      { q: "According to government regulations, these policies ________ when we lend money to clients.", opts: ["have followed", "have to be followed", "must follow"], a: "have to be followed" },
+      { q: "If our annual report hadn't been published, we ________ as a responsible company.", opts: ["wouldn't have been seen", "wouldn't see", "hadn't been seen"], a: "wouldn't have been seen" },
+      { q: "The language in this manual ________ without losing any technical precision.", opts: ["can simplify", "can easily be simplified", "could simplify easily"], a: "can easily be simplified" },
+    ]
+  },
+  {
+    title: "Section G — Third conditional",
+    instructions: "Fill in the blank using the correct third conditional form of the verb in brackets.",
+    type: "fitb",
+    items: [
+      { q: "If we ________ (go) on fewer business trips last year, we would have reduced our carbon footprint.", a: "had gone" },
+      { q: "She ________ (not choose) that supplier if they hadn't used fair trade products.", a: "wouldn't have chosen" },
+      { q: "If Kao hadn't developed the Kao Way, they ________ (not be listed) as one of the world's most ethical companies.", a: "might not have been listed" },
+      { q: "If our annual report ________ (not publish), we wouldn't have been seen as a responsible company.", a: "hadn't been published" },
+      { q: "Would we ________ (save) money on travel if we had used video conferencing instead?", a: "have saved" },
+    ]
+  },
+  {
+    title: "Section H — Reported speech and reporting verbs",
+    instructions: "Choose the correct option to complete each sentence.",
+    type: "mc",
+    items: [
+      { q: "The technician ________ that the website would be down from 10 p.m. the next day.", opts: ["confirmed", "insisted", "advised"], a: "confirmed" },
+      { q: "My manager ________ that changing offices hadn't come at a good time.", opts: ["suggested", "complained", "promised"], a: "complained" },
+      { q: "They ________ us that there wouldn't be any further changes to the schedule.", opts: ["confirmed", "suggested", "promised"], a: "promised" },
+      { q: "The company ________ to be experiencing difficulties with its computer systems.", opts: ["is said", "is told", "is informed"], a: "is said" },
+    ]
+  },
+];
+
+const allQuestions = [];
+sections.forEach((sec, si) => {
+  sec.items.forEach((item, qi) => {
+    allQuestions.push({ ...item, type: sec.type, section: sec.title, instructions: sec.instructions, si, qi });
+  });
+});
+
+function normalize(str) {
+  return str.trim().toLowerCase().replace(/['']/g, "'").replace(/\s+/g, " ");
+}
+
+function Card({ children, style }) {
+  return React.createElement("div", {
+    style: { background: "#fff", borderRadius: 2, boxShadow: "0 1px 4px rgba(0,0,0,0.10)", padding: 28, ...style }
+  }, children);
+}
+
+function Quiz() {
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [submitted, setSubmitted] = useState({});
+  const [input, setInput] = useState("");
+  const [showResults, setShowResults] = useState(false);
+  const [showHint, setShowHint] = useState({});
+
+  const q = allQuestions[current];
+  const total = allQuestions.length;
+  const isSubmitted = !!submitted[current];
+  const isCorrect = submitted[current] === "correct";
+  const score = Object.values(submitted).filter(v => v === "correct").length;
+
+  function handleMcSelect(opt) {
+    if (isSubmitted) return;
+    const correct = normalize(opt) === normalize(q.a);
+    setAnswers(a => ({ ...a, [current]: opt }));
+    setSubmitted(s => ({ ...s, [current]: correct ? "correct" : "wrong" }));
+  }
+
+  function handleFitbSubmit() {
+    if (isSubmitted || !input.trim()) return;
+    const correct = normalize(input) === normalize(q.a);
+    setAnswers(a => ({ ...a, [current]: input }));
+    setSubmitted(s => ({ ...s, [current]: correct ? "correct" : "wrong" }));
+  }
+
+  function goTo(idx) {
+    setInput(answers[idx] || "");
+    setCurrent(idx);
+  }
+
+  function handleNext() {
+    if (current < total - 1) goTo(current + 1);
+    else setShowResults(true);
+  }
+
+  function handlePrev() {
+    if (current > 0) goTo(current - 1);
+  }
+
+  function handleRestart() {
+    setAnswers({}); setSubmitted({}); setInput(""); setCurrent(0);
+    setShowResults(false); setShowHint({});
+  }
+
+  // ── Results screen ──────────────────────────────────────────────────────────
+  if (showResults) {
+    const pct = Math.round((score / total) * 100);
+    const msg = score === total ? "Perfect score." : pct >= 80 ? "Strong result." : pct >= 60 ? "Good effort — review the sections below." : "Several areas need attention.";
+    return React.createElement("div", null,
+      React.createElement(Card, { style: { marginBottom: 20 } },
+        React.createElement("div", { style: { fontSize: 11, color: "#888", marginBottom: 4 } }, "Business Partner B2 — Grammar Quiz"),
+        React.createElement("div", { style: { borderBottom: "2px solid #000", paddingBottom: 10, marginBottom: 16 } },
+          React.createElement("span", { style: { fontSize: 22, fontWeight: "bold" } }, "Results")
+        ),
+        React.createElement("div", { style: { fontSize: 28, fontWeight: "bold", marginBottom: 4 } }, score + " / " + total),
+        React.createElement("div", { style: { fontSize: 13, color: "#555", marginBottom: 20 } }, msg),
+        // Score bar
+        React.createElement("div", { style: { background: "#eee", height: 8, borderRadius: 4, marginBottom: 24 } },
+          React.createElement("div", { style: { background: "#000", height: 8, borderRadius: 4, width: pct + "%" } })
+        ),
+        // Section breakdown
+        sections.map((sec, si) => {
+          const secQs = allQuestions.filter(aq => aq.si === si);
+          const secScore = secQs.filter(aq => {
+            const gi = allQuestions.findIndex(x => x.si === aq.si && x.qi === aq.qi);
+            return submitted[gi] === "correct";
+          }).length;
+          return React.createElement("div", { key: si, style: { marginBottom: 16 } },
+            React.createElement("div", { style: { fontWeight: "bold", fontSize: 13, borderBottom: "1px solid #ddd", paddingBottom: 4, marginBottom: 8, display: "flex", justifyContent: "space-between" } },
+              React.createElement("span", null, sec.title),
+              React.createElement("span", { style: { color: secScore === secQs.length ? "#2a7a2a" : "#555" } }, secScore + "/" + secQs.length)
+            ),
+            secQs.map((aq, i) => {
+              const gi = allQuestions.findIndex(x => x.si === si && x.qi === i);
+              const result = submitted[gi];
+              return React.createElement("div", { key: i, style: { display: "flex", gap: 10, marginBottom: 6, fontSize: 12 } },
+                React.createElement("span", { style: { minWidth: 14, fontWeight: "bold", color: result === "correct" ? "#2a7a2a" : result === "wrong" ? "#b00" : "#aaa" } },
+                  result === "correct" ? "✓" : result === "wrong" ? "✗" : "–"
+                ),
+                React.createElement("div", null,
+                  React.createElement("div", { style: { color: "#333" } }, aq.q.replace("________", "___")),
+                  result === "wrong" && React.createElement("div", { style: { color: "#2a7a2a", marginTop: 2 } }, "Answer: " + aq.a)
+                )
+              );
+            })
+          );
+        }),
+        React.createElement("button", {
+          onClick: handleRestart,
+          style: { marginTop: 12, padding: "10px 24px", fontSize: 13, fontWeight: "bold", background: "#000", color: "#fff", border: "none", cursor: "pointer", borderRadius: 2 }
+        }, "Restart")
+      )
+    );
+  }
+
+  // ── Question screen ─────────────────────────────────────────────────────────
+
+  const dots = allQuestions.map((_, i) => {
+    const s = submitted[i];
+    return React.createElement("div", {
+      key: i,
+      onClick: () => goTo(i),
+      title: "Question " + (i + 1),
+      style: {
+        width: 10, height: 10, borderRadius: "50%", cursor: "pointer", flexShrink: 0,
+        background: s === "correct" ? "#2a7a2a" : s === "wrong" ? "#b00" : i === current ? "#000" : "#ccc",
+        border: i === current && !s ? "2px solid #000" : "2px solid transparent",
+      }
+    });
+  });
+
+  return React.createElement("div", null,
+    React.createElement(Card, null,
+      // Header
+      React.createElement("div", { style: { fontSize: 11, color: "#888", marginBottom: 2 } }, "Business Partner B2 — Grammar Quiz"),
+      React.createElement("div", { style: { borderBottom: "2px solid #000", paddingBottom: 8, marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "baseline" } },
+        React.createElement("span", { style: { fontWeight: "bold", fontSize: 13 } }, q.section),
+        React.createElement("span", { style: { fontSize: 12, color: "#666" } }, (current + 1) + " / " + total + "  |  " + score + " correct")
+      ),
+
+      // Progress dots
+      React.createElement("div", { style: { display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 20 } }, dots),
+
+      // Section instructions
+      React.createElement("div", {
+        style: { fontStyle: "italic", fontSize: 13, color: "#444", marginBottom: 16, padding: "8px 12px", borderLeft: "3px solid #999", background: "#fafafa" }
+      }, q.instructions),
+
+      // Question text
+      React.createElement("div", { style: { fontSize: 15, lineHeight: 1.65, marginBottom: 20 } },
+        React.createElement("span", { style: { fontWeight: "bold", color: "#888", marginRight: 8 } }, current + 1 + "."),
+        q.q
+      ),
+
+      // MC options
+      q.type === "mc" && React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 } },
+        q.opts.map((opt, i) => {
+          const selected = answers[current] === opt;
+          const correct = normalize(opt) === normalize(q.a);
+          let bg = "#f7f7f7", border2 = "1px solid #ddd", color = "#222", fw = "normal";
+          if (isSubmitted) {
+            if (correct) { bg = "#e8f5e8"; border2 = "1px solid #2a7a2a"; color = "#1a4d1a"; fw = "bold"; }
+            else if (selected) { bg = "#fdecea"; border2 = "1px solid #b00"; color = "#800"; }
+          } else if (selected) { bg = "#eee"; border2 = "1px solid #666"; }
+          return React.createElement("button", {
+            key: i, onClick: () => handleMcSelect(opt),
+            style: { textAlign: "left", padding: "10px 14px", fontSize: 13, background: bg, border: border2, color, fontWeight: fw, cursor: isSubmitted ? "default" : "pointer", borderRadius: 2, fontFamily: "Calibri, sans-serif" }
+          }, opt);
+        })
+      ),
+
+      // FITB / EC input
+      (q.type === "fitb" || q.type === "ec") && React.createElement("div", { style: { marginBottom: 20 } },
+        React.createElement("div", { style: { display: "flex", gap: 8 } },
+          React.createElement("input", {
+            value: isSubmitted ? (answers[current] || "") : input,
+            onChange: e => setInput(e.target.value),
+            onKeyDown: e => e.key === "Enter" && handleFitbSubmit(),
+            disabled: isSubmitted,
+            placeholder: "Type your answer…",
+            style: {
+              flex: 1, padding: "10px 12px", fontSize: 13, fontFamily: "Calibri, sans-serif",
+              border: isSubmitted ? (isCorrect ? "1px solid #2a7a2a" : "1px solid #b00") : "1px solid #bbb",
+              background: isSubmitted ? (isCorrect ? "#e8f5e8" : "#fdecea") : "#fff",
+              borderRadius: 2, outline: "none"
+            }
+          }),
+          !isSubmitted && React.createElement("button", {
+            onClick: handleFitbSubmit,
+            style: { padding: "10px 18px", fontSize: 13, fontWeight: "bold", background: "#000", color: "#fff", border: "none", cursor: "pointer", borderRadius: 2 }
+          }, "Check")
+        ),
+        isSubmitted && React.createElement("div", { style: { marginTop: 8, fontSize: 13, color: isCorrect ? "#2a7a2a" : "#b00" } },
+          isCorrect ? "✓ Correct" : React.createElement("span", null, "✗ Incorrect — answer: ", React.createElement("strong", null, q.a))
+        )
+      ),
+
+      // MC feedback
+      q.type === "mc" && isSubmitted && React.createElement("div", { style: { fontSize: 13, marginBottom: 8, color: isCorrect ? "#2a7a2a" : "#b00" } },
+        isCorrect ? "✓ Correct" : React.createElement("span", null, "✗ Incorrect — answer: ", React.createElement("strong", null, q.a))
+      ),
+
+      // Hint
+      (q.type === "fitb" || q.type === "ec") && !isSubmitted && React.createElement("button", {
+        onClick: () => setShowHint(h => ({ ...h, [current]: true })),
+        style: { fontSize: 11, color: "#666", background: "none", border: "1px solid #ccc", padding: "3px 10px", cursor: "pointer", borderRadius: 2, marginBottom: 16 }
+      }, showHint[current] ? "Hint: " + q.a.split(" ").map((w, i) => i === 0 ? w[0] + "…" : "___").join(" ") : "Show hint"),
+
+      // Navigation
+      React.createElement("div", { style: { display: "flex", justifyContent: "space-between", marginTop: 8 } },
+        React.createElement("button", {
+          onClick: handlePrev, disabled: current === 0,
+          style: { padding: "9px 18px", fontSize: 13, background: current === 0 ? "#f0f0f0" : "#f5f5f5", border: "1px solid #ccc", cursor: current === 0 ? "default" : "pointer", color: current === 0 ? "#bbb" : "#222", borderRadius: 2 }
+        }, "← Previous"),
+        React.createElement("button", {
+          onClick: handleNext, disabled: !isSubmitted,
+          style: { padding: "9px 20px", fontSize: 13, fontWeight: "bold", background: isSubmitted ? "#000" : "#ccc", color: "#fff", border: "none", cursor: isSubmitted ? "pointer" : "default", borderRadius: 2 }
+        }, current === total - 1 ? "See results" : "Next →")
+      )
+    )
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(React.createElement(Quiz));
+</script>
+</body>
+</html>
